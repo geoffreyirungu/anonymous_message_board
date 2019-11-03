@@ -1,0 +1,101 @@
+/*
+*
+*
+*       FILL IN EACH FUNCTIONAL TEST BELOW COMPLETELY
+*       -----[Keep the tests in the same order!]-----
+*       (if additional are added, keep them at the very end!)
+*/
+
+var chaiHttp = require('chai-http');
+var chai = require('chai');
+var assert = chai.assert;
+var server = require('../server');
+
+chai.use(chaiHttp);
+
+suite('Functional Tests', function() {
+  var board;
+  var testText;
+  var id;
+  var id1;
+  var password;
+      
+    test('POST threads', function(done) {
+      chai.request(server)
+      .post('/api/threads/'+board)
+      .send({text:testText, delete_password:password})
+      .end(function(err, res){
+        assert.equal(res.status, 200);
+        done();
+      });
+    });
+  test('GET threads', function(done) {
+      chai.request(server)
+      .get('/api/threads/'+board)
+      .end(function(err, res){
+        assert.equal(res.status, 200);
+        assert.isArray(res.body);
+        done();
+      });
+    });
+  test('PUT threads', function(done) {
+      chai.request(server)
+      .put('/api/threads/'+board)
+      .send({thread_id: id})
+      .end(function(err, res){
+        assert.equal(res.status, 200);
+        assert.equal(res.text, "reported");
+        done();
+      });
+    });
+  test('DELETE threads', function(done) {
+      chai.request(server)
+      .delete('/api/threads/'+board)
+      .send({thread_id: id,password})
+      .end(function(err, res){
+        assert.equal(res.status, 200);
+        assert.equal(res.text, "incorrect password");
+        done();
+      });
+    });
+  
+  test('POST replies', function(done) {
+      chai.request(server)
+      .post('/api/replies/'+board)
+      .send({text:testText, delete_password:password,thread_id:id})
+      .end(function(err, res){
+        assert.equal(res.status, 200);
+        done();
+      });
+    });
+  test('GET replies', function(done) {
+      chai.request(server)
+      .get('/api/replies/'+board)
+      .query({thread_id: id})
+      .end(function(err, res){
+        assert.equal(res.status, 200);
+        done();
+      });
+    });
+  test('PUT replies', function(done) {
+      chai.request(server)
+      .put('/api/replies/'+board)
+      .send({thread_id: id,reply_id:id1})
+      .end(function(err, res){
+        assert.equal(res.status, 200);
+        assert.equal(res.text, "reported");
+        done();
+      });
+    });
+  test('DELETE replies with invalid password', function(done) {
+      chai.request(server)
+      .delete('/api/replies/'+board)
+      .send({thread_id: id,delete_password:password,reply_id:id})
+      .end(function(err, res){
+        assert.equal(res.status, 200);
+        assert.equal(res.text, "incorrect password");
+        done();
+      });
+    });
+
+});
